@@ -1,0 +1,38 @@
+name: Build WDA for A9
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: appium/WebDriverAgent
+        ref: v10.5.4
+
+    - name: Select Xcode 14
+      run: |
+        sudo xcode-select -s /Applications/Xcode_14.0.1.app
+        xcodebuild -version
+
+    - name: Build WDA
+      run: |
+        xcodebuild -project WebDriverAgent.xcodeproj -scheme WebDriverAgentRunner -configuration Release -sdk iphoneos -derivedDataPath ./build ARCHS=arm64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM="" build
+
+    - name: Package IPA
+      run: |
+        APP=$(find ./build -name "WebDriverAgentRunner-Runner.app" -type d | head -1)
+        echo "App: $APP"
+        mkdir -p Payload
+        cp -R "$APP" Payload/
+        zip -r WDA_A9_iOS15.ipa Payload/
+        ls -la WDA_A9_iOS15.ipa
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: WDA_A9_iOS15
+        path: WDA_A9_iOS15.ipa
