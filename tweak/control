@@ -1,0 +1,8 @@
+Package: com.fbi178.unionpaycaptchabypass
+Name: 云闪付滑块验证绕过
+Version: 1.0
+Architecture: iphoneos-arm
+Description: 自动绕过云闪付WebView滑块验证码
+Maintainer: fbi178
+Author: fbi178
+Section: Tweaks
