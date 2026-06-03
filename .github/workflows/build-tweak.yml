@@ -1,0 +1,20 @@
+name: Build Captcha Bypass Tweak
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Theos
+      run: |
+        brew install make ldid
+        git clone --depth 1 https://github.com/theos/theos.git /opt/theos
+    - name: Build Tweak
+      run: |
+        cd tweak
+        THEOS=/opt/theos make package
+        ls -la
+    - uses: actions/upload-artifact@v4
+      with:
+        name: captcha-bypass-dylib
+        path: tweak/.theos/obj/debug/Tweak.dylib
