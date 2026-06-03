@@ -2,19 +2,16 @@ name: Build Captcha Bypass Tweak
 on: workflow_dispatch
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install Theos
+    - name: Build dylib (direct clang)
       run: |
-        brew install make ldid
-        git clone --depth 1 https://github.com/theos/theos.git /opt/theos
-    - name: Build Tweak
-      run: |
-        cd tweak
-        THEOS=/opt/theos make package
-        ls -la
+        SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+        clang -arch arm64 -isysroot $SDK -dynamiclib           -F $SDK/System/Library/Frameworks           -framework UIKit -framework WebKit -framework Foundation           -o Tweak.dylib tweak/Tweak.xm           -Xlinker -undefined -Xlinker dynamic_lookup
+        ls -la Tweak.dylib
+        file Tweak.dylib
     - uses: actions/upload-artifact@v4
       with:
         name: captcha-bypass-dylib
-        path: tweak/.theos/obj/debug/Tweak.dylib
+        path: Tweak.dylib
